@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryReg - Aplikasi Pendaftaran Anggota Perpustakaan</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #164628; /* Deep Navy */
+            --primary-hover: #1eaf6b;
+            --accent-color: #0d9488;  /* Warm Teal */
+            --accent-hover: #0f766e;
+            --bg-light: #f8fafc;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: #334155;
+            padding-top: 75px;
+        }
+
+        /* Navbar Styling */
+        .navbar-custom {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary-color) !important;
+            font-size: 1.4rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #476951 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color) !important;
+            background-color: #eff6ff;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #228a1e 0%, #0f2a11 100%);
+            color: white;
+            padding: 80px 0 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: var(--bg-light);
+            transform: skewY(-2deg);
+        }
+
+        /* Cards & Components */
+        .custom-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+        }
+
+        .custom-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Button Styling */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: white;
+        }
+
+          /* Section View Toggling */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active-section {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0f2a15;
+            color: #94a3b8;
+        }
+
+        /* Toast Container */
+        .toast-container {
+            z-index: 1090;
+        }
+
+        /* Printable ID Card Mockup */
+        .member-card-preview {
+            background: linear-gradient(135deg, #228a1e 0%, #3bf64b 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    Pesan notifikasi
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#" onclick="showSection('beranda')">
+                <i class="fa-solid fa-book-bookmark text-primary me-2"></i>
+                LibraryReg
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="nav-beranda" href="#" onclick="showSection('beranda')">
+                            <i class="fa-solid fa-house me-1"></i> Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-tentang" href="#tentang-section" onclick="navigateToAnchor('tentang-section')">
+                            <i class="fa-solid fa-circle-info me-1"></i> Tentang
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-layanan" href="#layanan-section" onclick="navigateToAnchor('layanan-section')">
+                            <i class="fa-solid fa-concierge-bell me-1"></i> Layanan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-pendaftaran" href="#" onclick="showSection('pendaftaran')">
+                            <i class="fa-solid fa-user-plus me-1"></i> Pendaftaran
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-kelola" href="#" onclick="checkAdminAuthAndShow()">
+                            <i class="fa-solid fa-users-gear me-1"></i> Kelola Data
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnLoginLogout" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Login Petugas
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT SECTIONS -->
+
+    <!-- 1. LANDING PAGE SECTION -->
+    <section id="section-beranda" class="page-section active-section">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="container my-4">
+                <div class="row align-items-center gy-5">
+                    <div class="col-lg-7">
+                        <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 mb-3 rounded-pill bg-light">
+                            <i class="fa-solid fa-sparkles text-warning me-1"></i> Perpustakaan Modern Perguruan Tinggi
+                        </span>
+                        <h1 class="display-4 fw-bold mb-3">Selamat Datang di Portal Keanggotaan Digital</h1>
+                        <p class="lead text-light opacity-90 mb-4">
+                            Bergabunglah menjadi bagian dari komunitas akademik kami. Nikmati kemudahan akses koleksi literatur fisik dan digital, peminjaman mandiri, serta ruang belajar yang nyaman.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <button class="btn btn-accent btn-lg shadow-sm" onclick="showSection('pendaftaran')">
+                                <i class="fa-solid fa-user-plus me-2"></i>Daftar Anggota Sekarang
+                        </div>
+                    </div>
+                    <div class="col-lg-5 text-center">
+                        <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=600&q=80" alt="Library Interior" class="img-fluid rounded-4 shadow-lg border border-3 border-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistik Ilustratif -->
+        <div class="container my-5">
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="text-muted small fw-semibold">TOTAL KOLEKSI</div>
+                        <div class="h2 fw-bold text-dark my-1">45,800+</div>
+                        <div class="text-success small"><i class="fa-solid fa-arrow-up me-1"></i>Buku & Jurnal</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card" style="border-left-color: var(--primary-color);">
+                        <div class="text-muted small fw-semibold">ANGGOTA AKTIF</div>
+                        <div class="h2 fw-bold text-dark my-1" id="statTotalAnggota">0</div>
+                        <div class="text-primary small"><i class="fa-solid fa-users me-1"></i>Terdaftar</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                        <div class="text-muted small fw-semibold">E-JOURNAL</div>
+                        <div class="h2 fw-bold text-dark my-1">12,400+</div>
+                        <div class="text-warning small"><i class="fa-solid fa-globe me-1"></i>Akses Internasional</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card" style="border-left-color: #10b981;">
+                        <div class="text-muted small fw-semibold">PUNCAK KUNJUNGAN</div>
+                        <div class="h2 fw-bold text-dark my-1">1,250</div>
+                        <div class="text-success small"><i class="fa-solid fa-clock me-1"></i>Pengunjung/Hari</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keunggulan dan Fasilitas Section -->
+        <div id="tentang-section" class="container my-5 py-4">
+            <div class="text-center mb-5">
+                <h6 class="text-primary fw-bold text-uppercase">Mengapa Bergabung?</h6>
+                <h2 class="fw-bold">Keunggulan & Fasilitas Perpustakaan</h2>
+                <p class="text-muted">Fasilitas terbaik yang dirancang untuk mendukung penelitian dan studi mahasiswa & dosen.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="custom-card p-4 h-100">
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <h5 class="fw-bold">Kartu Anggota Digital</h5>
+                        <p class="text-muted">Kartu anggota langsung tergenerasi otomatis secara digital dan siap dipergunakan tanpa penundaan cetak fisik.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="custom-card p-4 h-100">
+                        <div class="feature-icon" style="background-color: #f0fdf4; color: #16a34a;">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <h5 class="fw-bold">Akses E-Resources 24/7</h5>
+                        <p class="text-muted">Nikmati jangkauan tak terbatas ke ribuan jurnal internasional, repositori skripsi, dan e-book dari mana saja.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="custom-card p-4 h-100">
+                        <div class="feature-icon" style="background-color: #fef3c7; color: #d97706;">
+                            <i class="fa-solid fa-couch"></i>
+                        </div>
+                        <h5 class="fw-bold">Ruang Diskusi & Co-Working</h5>
+                        <p class="text-muted">Fasilitas ruangan ber-AC, koneksi Wi-Fi berkecepatan tinggi, dan ruang privat untuk kerja kelompok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informasi Layanan Perpustakaan -->
+        <div id="layanan-section" class="bg-white py-5 my-5 border-top border-bottom">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase">Layanan Kami</h6>
+                    <h2 class="fw-bold">Layanan Akademik Perpustakaan</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 border rounded-3 bg-light text-center h-100">
+                            <i class="fa-solid fa-book-open text-primary fa-2x mb-3"></i>
+                            <h6 class="fw-bold">Sirkulasi & Peminjaman</h6>
+                            <p class="small text-muted mb-0">Peminjaman hingga 5 buku selama 14 hari kerja dengan perpanjangan online.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 border rounded-3 bg-light text-center h-100">
+                            <i class="fa-solid fa-magnifying-glass text-primary fa-2x mb-3"></i>
+                            <h6 class="fw-bold">Penelusuran Literatur</h6>
+                            <p class="small text-muted mb-0">Bantuan pustakawan dalam pencarian referensi ilmiah dan sitasi karya tulis.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 border rounded-3 bg-light text-center h-100">
+                            <i class="fa-solid fa-print text-primary fa-2x mb-3"></i>
+                            <h6 class="fw-bold">Cetak & Scanning</h6>
+                            <p class="small text-muted mb-0">Layanan mandiri pemindaian dokumen dan cetak tugas akhir.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 border rounded-3 bg-light text-center h-100">
+                            <i class="fa-solid fa-user-graduate text-primary fa-2x mb-3"></i>
+                            <h6 class="fw-bold">Literasi Informasi</h6>
+                            <p class="small text-muted mb-0">Pelatihan penggunaan Mendeley, Zotero, dan pencegahan plagiarisme.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. FORMULIR PENDAFTARAN SECTION -->
+    <section id="section-pendaftaran" class="page-section my-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="custom-card p-4 p-md-5">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="feature-icon me-3 mb-0">
+                                <i class="fa-solid fa-address-card"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-1">Formulir Pendaftaran Anggota</h3>
+                                <p class="text-muted mb-0">Isi data diri Anda dengan benar untuk mendaftar sebagai anggota perpustakaan.</p>
+                            </div>
+                        </div>
+
+                        <form id="formPendaftaran" novalidate>
+                            <div class="row g-3">
+                                <!-- Nama Lengkap -->
+                                <div class="col-md-12">
+                                    <label for="namaLengkap" class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="namaLengkap" placeholder="Masukkan nama lengkap beserta gelar jika ada" required>
+                                    <div class="invalid-feedback">Nama lengkap wajib diisi!</div>
+                                </div>
+
+                                <!-- NIM / NIP -->
+                                <div class="col-md-6">
+                                    <label for="nimNip" class="form-label fw-semibold">NIM / NIP <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nimNip" placeholder="Contoh: 2104010100" required>
+                                    <div class="invalid-feedback" id="nimNipFeedback">NIM/NIP wajib diisi!</div>
+                                </div>
+
+                                <!-- Jenis Keanggotaan -->
+                                <div class="col-md-6">
+                                    <label for="jenisKeanggotaan" class="form-label fw-semibold">Jenis Keanggotaan <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="jenisKeanggotaan" required>
+                                        <option value="" selected disabled>-- Pilih Jenis Keanggotaan --</option>
+                                        <option value="Mahasiswa">Mahasiswa</option>
+                                        <option value="Dosen">Dosen</option>
+                                        <option value="Tenaga Kependidikan">Tenaga Kependidikan</option>
+                                    </select>
+                                    <div class="invalid-feedback">Silakan pilih jenis keanggotaan!</div>
+                                </div>
+
+                                <!-- Program Studi / Unit -->
+                                <div class="col-md-12">
+                                    <label for="prodiUnit" class="form-label fw-semibold">Program Studi / Unit Kerja <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="prodiUnit" placeholder="Contoh: Teknik Informatika / Biro Akademik" required>
+                                    <div class="invalid-feedback">Program Studi / Unit Kerja wajib diisi!</div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label fw-semibold">Email Kampus / Aktif <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" placeholder="nama@univ.ac.id" required>
+                                    <div class="invalid-feedback">Format email tidak valid!</div>
+                                </div>
+
+                                <!-- Nomor Telepon -->
+                                <div class="col-md-6">
+                                    <label for="noTelp" class="form-label fw-semibold">Nomor WhatsApp / HP <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="noTelp" placeholder="081234567890" pattern="[0-9]{10,15}" required>
+                                    <div class="invalid-feedback">Nomor telepon harus angka (10-15 digit)!</div>
+                                </div>
+
+                                <!-- Alamat -->
+                                <div class="col-md-12">
+                                    <label for="alamat" class="form-label fw-semibold">Alamat Domisili <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="alamat" rows="3" placeholder="Masukkan alamat tempat tinggal saat ini" required></textarea>
+                                    <div class="invalid-feedback">Alamat domisili wajib diisi!</div>
+                                </div>
+
+                                <!-- Persetujuan -->
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="checkTerms" required>
+                                        <label class="form-check-label text-muted small" for="checkTerms">
+                                            Saya menyatakan bahwa data yang diisikan adalah benar dan bersedia mematuhi seluruh tata tertib perpustakaan.
+                                        </label>
+                                        <div class="invalid-feedback">Anda harus menyetujui pernyataan di atas.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Tombol Aksi -->
+                                <div class="col-12 mt-4 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary-custom flex-grow-1">
+                                        <i class="fa-solid fa-paper-plane me-1"></i> Kirim Pendaftaran
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. HALAMAN KELOLA DATA ANGGOTA (PETUGAS VIEW) -->
+    <section id="section-kelola" class="page-section my-4">
+        <div class="container">
+            <!-- Header Panel Admin -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">Pengelolaan Data Anggota</h3>
+                    <p class="text-muted mb-0">Kelola dan tinjau seluruh data anggota perpustakaan yang terdaftar.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-danger btn-sm" onclick="confirmResetAllData()">
+                        <i class="fa-solid fa-trash-arrow-up me-1"></i> Reset Ke Data Awal
+                    </button>
+                    <button class="btn btn-primary-custom btn-sm" onclick="showSection('pendaftaran')">
+                        <i class="fa-solid fa-plus me-1"></i> Tambah Anggota Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div class="custom-card p-3 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-7">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Cari berdasarkan Nama atau NIM/NIP..." onkeyup="renderAnggotaTable()">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-5">
+                        <select id="filterJenis" class="form-select" onchange="renderAnggotaTable()">
+                            <option value="">Semua Jenis Keanggotaan</option>
+                            <option value="Mahasiswa">Mahasiswa</option>
+                            <option value="Dosen">Dosen</option>
+                            <option value="Tenaga Kependidikan">Tenaga Kependidikan</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Anggota -->
+            <div class="custom-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">No</th>
+                                <th>NIM / NIP</th>
+                                <th>Nama Lengkap</th>
+                                <th>Jenis</th>
+                                <th>Prodi / Unit</th>
+                                <th>Email & No. HP</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyAnggota">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyTableNotice" class="text-center py-5 d-none">
+                    <i class="fa-solid fa-folder-open text-muted fa-3x mb-3"></i>
+                    <p class="text-muted mb-0">Tidak ada data anggota yang ditemukan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL DIALOGS -->
+
+    <!-- Modal Login Petugas Simulation -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield me-2"></i>Login Petugas Perpustakaan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formLogin" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label font-semibold">Username / NIP</label>
+                            <input type="text" id="loginUsername" class="form-control" value="admin" required>
+                            <div class="form-text">Gunakan username: <strong>admin</strong></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-semibold">Password</label>
+                            <input type="password" id="loginPassword" class="form-control" value="admin123" required>
+                            <div class="form-text">Gunakan password: <strong>admin123</strong></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 mt-2">Masuk Panel Petugas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Anggota & Kartu Digital -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-address-card text-primary me-2"></i>Detail Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Preview Kartu Digital -->
+                    <div class="member-card-preview mb-4 text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-white-50 pb-2">
+                            <span class="fw-bold small"><i class="fa-solid fa-university me-1"></i> LIBRARY PERGURUAN TINGGI</span>
+                            <span class="badge bg-light text-primary" id="cardJenis">Mahasiswa</span>
+                        </div>
+                        <i class="fa-solid fa-circle-user fa-4x mb-2 text-white-50"></i>
+                        <h5 class="fw-bold mb-0" id="cardNama">Nama Anggota</h5>
+                        <p class="small opacity-75 mb-2" id="cardNim">NIM/NIP</p>
+                        <div class="bg-white text-dark rounded-2 p-2 mt-2">
+                            <span class="small fw-semibold text-muted d-block">PROGRAM STUDI / UNIT</span>
+                            <span class="fw-bold text-primary" id="cardProdi">Informatika</span>
+                        </div>
+                    </div>
+
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Email:</span>
+                            <span class="fw-semibold" id="detailEmail">-</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">No. Telepon:</span>
+                            <span class="fw-semibold" id="detailTelp">-</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Alamat:</span>
+                            <span class="fw-semibold text-end" id="detailAlamat">-</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Tanggal Terdaftar:</span>
+                            <span class="fw-semibold" id="detailTanggal">-</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary-custom btn-sm" onclick="window.print()">
+                        <i class="fa-solid fa-print me-1"></i> Cetak Kartu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Data Anggota -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen-to-square text-primary me-2"></i>Edit Data Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEditAnggota" onsubmit="handleSaveEdit(event)">
+                        <input type="hidden" id="editOriginalNim">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nama Lengkap</label>
+                            <input type="text" id="editNama" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">NIM / NIP</label>
+                            <input type="text" id="editNim" class="form-control" required readonly>
+                            <div class="form-text">NIM/NIP tidak dapat diubah sebagai identitas unik.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Jenis Keanggotaan</label>
+                            <select id="editJenis" class="form-select" required>
+                                <option value="Mahasiswa">Mahasiswa</option>
+                                <option value="Dosen">Dosen</option>
+                                <option value="Tenaga Kependidikan">Tenaga Kependidikan</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Program Studi / Unit</label>
+                            <input type="text" id="editProdi" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input type="email" id="editEmail" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">No. Telepon</label>
+                            <input type="tel" id="editTelp" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Alamat</label>
+                            <textarea id="editAlamat" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary-custom">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="pt-5 pb-4 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5 class="text-white fw-bold mb-3"><i class="fa-solid fa-book-bookmark text-primary me-2"></i>LibraryReg</h5>
+                    <p class="small">Sistem Pendaftaran Anggota Perpustakaan Perguruan Tinggi berbasis digital untuk efisiensi dan kemudahan akses layanan akademik.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="text-white fw-bold mb-3">Jam Layanan Operasional</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1"><i class="fa-regular fa-clock me-2 text-primary"></i>Senin - Jumat: 08.00 - 20.00 WIB</li>
+                        <li class="mb-1"><i class="fa-regular fa-clock me-2 text-primary"></i>Sabtu: 08.00 - 15.00 WIB</li>
+                        <li><i class="fa-regular fa-circle-xmark me-2 text-danger"></i>Minggu & Hari Libur Nasional: Tutup</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="text-white fw-bold mb-3">Kontak & Informasi</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="fa-solid fa-location-dot me-2 text-primary"></i>Gedung Perpustakaan Pusat, Lt. 1-3</li>
+                        <li class="mb-2"><i class="fa-solid fa-envelope me-2 text-primary"></i>perpustakaan@univ.ac.id</li>
+                        <li><i class="fa-solid fa-phone me-2 text-primary"></i>(031) 8901234 / Ext. 102</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="text-center small opacity-75">
+                &copy; 2026 LibraryReg — Praktikum Front-End Web Development. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // --- DATA INITIALIZATION & LOCALSTORAGE MANAGEMENT ---
+        const LOCAL_STORAGE_KEY = 'libraryreg_members_data';
+        let isAdminLoggedIn = false;
+
+        // Dummy Data Awal jika LocalStorage Kosong
+        const dummyMembers = [
+            {
+                nimNip: '210401001',
+                nama: 'Ahmad Fauzi',
+                jenis: 'Mahasiswa',
+                prodiUnit: 'Teknik Informatika',
+                email: 'fauzi@student.univ.ac.id',
+                noTelp: '081234567890',
+                alamat: 'Jl. Pemuda No. 12, Surabaya',
+                tanggalDaftar: '2026-01-15'
+            },
+            {
+                nimNip: '198503122010121001',
+                nama: 'Dr. Indah Permata, M.T.',
+                jenis: 'Dosen',
+                prodiUnit: 'Sistem Informasi',
+                email: 'indah.permata@univ.ac.id',
+                noTelp: '081987654321',
+                alamat: 'Jl. Raya Darmo No. 45, Surabaya',
+                tanggalDaftar: '2026-02-01'
+            },
+            {
+                nimNip: '199005202015042002',
+                nama: 'Budi Santoso, S.Kom.',
+                jenis: 'Tenaga Kependidikan',
+                prodiUnit: 'Laboratorium Komputer',
+                email: 'budi.s@univ.ac.id',
+                noTelp: '085678901234',
+                alamat: 'Jl. Mulyosari No. 88, Surabaya',
+                tanggalDaftar: '2026-02-10'
+            }
+        ];
+
+        // Ambil Data dari LocalStorage
+        function getStoredMembers() {
+            const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dummyMembers));
+                return dummyMembers;
+            }
+            return JSON.parse(data);
+        }
+
+        // Simpan Data ke LocalStorage
+        function saveMembersToStorage(members) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(members));
+            updateStatistics();
+        }
+
+        // Update Statistik Ilustratif
+        function updateStatistics() {
+            const members = getStoredMembers();
+            const statTotalEl = document.getElementById('statTotalAnggota');
+            if (statTotalEl) {
+                statTotalEl.textContent = members.length;
+            }
+        }
+
+        // --- NAVIGATION & ROUTING LOGIC ---
+        function showSection(sectionId) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.page-section').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+
+            // Tampilkan section target
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.classList.add('active-section');
+            }
+
+            // Update Nav Active State
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${sectionId}`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+
+            // Scroll ke atas halaman
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Render tabel jika beralih ke halaman kelola
+            if (sectionId === 'kelola') {
+                renderAnggotaTable();
+            }
+        }
+
+        function navigateToAnchor(anchorId) {
+            showSection('beranda');
+            setTimeout(() => {
+                const element = document.getElementById(anchorId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+
+        // --- AUTHENTICATION SIMULATION ---
+        function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('loginUsername').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (user === 'admin' && pass === 'admin123') {
+                isAdminLoggedIn = true;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                modal.hide();
+                showToast('Login Berhasil! Anda memiliki akses pengelolaan.', 'bg-success');
+                
+                // Ubah status tombol login
+                const btnLogin = document.getElementById('btnLoginLogout');
+                btnLogin.innerHTML = `<i class="fa-solid fa-right-from-bracket me-1"></i> Logout (${user})`;
+                btnLogin.classList.replace('btn-outline-primary', 'btn-outline-danger');
+                btnLogin.onclick = handleLogout;
+                btnLogin.removeAttribute('data-bs-toggle');
+
+                showSection('kelola');
+            } else {
+                showToast('Username atau password salah!', 'bg-danger');
+            }
+        }
+
+        function handleLogout() {
+            isAdminLoggedIn = false;
+            showToast('Anda telah logout dari sistem.', 'bg-info');
+            
+            const btnLogin = document.getElementById('btnLoginLogout');
+            btnLogin.innerHTML = `<i class="fa-solid fa-right-to-bracket me-1"></i> Login Petugas`;
+            btnLogin.classList.replace('btn-outline-danger', 'btn-outline-primary');
+            btnLogin.setAttribute('data-bs-toggle', 'modal');
+            btnLogin.onclick = null;
+
+            showSection('beranda');
+        }
+
+        function checkAdminAuthAndShow() {
+            if (!isAdminLoggedIn) {
+                showToast('Silakan login sebagai petugas terlebih dahulu untuk mengakses data.', 'bg-warning');
+                const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                modal.show();
+            } else {
+                showSection('kelola');
+            }
+        }
+
+        // --- FORM PENDAFTARAN & VALIDASI ---
+        const formPendaftaran = document.getElementById('formPendaftaran');
+
+        formPendaftaran.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nimNipInput = document.getElementById('nimNip');
+            const nimVal = nimNipInput.value.trim();
+            const members = getStoredMembers();
+
+            // Validasi Keunikan NIM/NIP
+            const isDuplicate = members.some(m => m.nimNip === nimVal);
+            if (isDuplicate) {
+                nimNipInput.classList.add('is-invalid');
+                document.getElementById('nimNipFeedback').textContent = 'NIM / NIP sudah terdaftar dalam sistem!';
+                showToast('Gagal Pendaftaran: NIM/NIP sudah terdaftar!', 'bg-danger');
+                return;
+            } else {
+                nimNipInput.classList.remove('is-invalid');
+            }
+
+            if (!formPendaftaran.checkValidity()) {
+                e.stopPropagation();
+                formPendaftaran.classList.add('was-validated');
+                showToast('Harap lengkapi seluruh kolom formulir dengan benar.', 'bg-warning');
+                return;
+            }
+
+            // Simpan Data Baru
+            const newMember = {
+                nimNip: nimVal,
+                nama: document.getElementById('namaLengkap').value.trim(),
+                jenis: document.getElementById('jenisKeanggotaan').value,
+                prodiUnit: document.getElementById('prodiUnit').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                noTelp: document.getElementById('noTelp').value.trim(),
+                alamat: document.getElementById('alamat').value.trim(),
+                tanggalDaftar: new Date().toISOString().split('T')[0]
+            };
+
+            members.push(newMember);
+            saveMembersToStorage(members);
+
+            // Reset Form & Notifikasi
+            formPendaftaran.reset();
+            formPendaftaran.classList.remove('was-validated');
+            showToast('Pendaftaran Berhasil! Data telah tersimpan.', 'bg-success');
+
+            // Tampilkan Detail Modal untuk kartu digital
+            openDetailModal(newMember.nimNip);
+        });
+
+        // --- TABEL DATA ANGGOTA (READ, EDIT, DELETE) ---
+        function renderAnggotaTable() {
+            const members = getStoredMembers();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const filterJenis = document.getElementById('filterJenis').value;
+            const tbody = document.getElementById('tableBodyAnggota');
+            const emptyNotice = document.getElementById('emptyTableNotice');
+
+            tbody.innerHTML = '';
+
+            const filtered = members.filter(m => {
+                const matchSearch = m.nama.toLowerCase().includes(searchQuery) || m.nimNip.toLowerCase().includes(searchQuery);
+                const matchJenis = filterJenis === '' || m.jenis === filterJenis;
+                return matchSearch && matchJenis;
+            });
+
+            if (filtered.length === 0) {
+                emptyNotice.classList.remove('d-none');
+            } else {
+                emptyNotice.classList.add('d-none');
+                filtered.forEach((m, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="ps-4 font-semibold">${index + 1}</td>
+                        <td><span class="badge bg-light text-dark font-monospace">${m.nimNip}</span></td>
+                        <td class="fw-bold">${m.nama}</td>
+                        <td><span class="badge ${getBadgeClass(m.jenis)}">${m.jenis}</span></td>
+                        <td>${m.prodiUnit}</td>
+                        <td>
+                            <div class="small">${m.email}</div>
+                            <div class="small text-muted">${m.noTelp}</div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info" title="Lihat Detail / Kartu" onclick="openDetailModal('${m.nimNip}')">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" title="Edit Data" onclick="openEditModal('${m.nimNip}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" title="Hapus Data" onclick="confirmDeleteMember('${m.nimNip}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function getBadgeClass(jenis) {
+            switch(jenis) {
+                case 'Mahasiswa': return 'bg-primary';
+                case 'Dosen': return 'bg-success';
+                case 'Tenaga Kependidikan': return 'bg-warning text-dark';
+                default: return 'bg-secondary';
+            }
+        }
+
+        // Open Detail Modal
+        function openDetailModal(nim) {
+            const members = getStoredMembers();
+            const m = members.find(item => item.nimNip === nim);
+            if (!m) return;
+
+            document.getElementById('cardNama').textContent = m.nama;
+            document.getElementById('cardNim').textContent = m.nimNip;
+            document.getElementById('cardJenis').textContent = m.jenis;
+            document.getElementById('cardProdi').textContent = m.prodiUnit;
+
+            document.getElementById('detailEmail').textContent = m.email;
+            document.getElementById('detailTelp').textContent = m.noTelp;
+            document.getElementById('detailAlamat').textContent = m.alamat;
+            document.getElementById('detailTanggal').textContent = m.tanggalDaftar;
+
+            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+            modal.show();
+        }
+
+        // Open Edit Modal
+        function openEditModal(nim) {
+            const members = getStoredMembers();
+            const m = members.find(item => item.nimNip === nim);
+            if (!m) return;
+
+            document.getElementById('editOriginalNim').value = m.nimNip;
+            document.getElementById('editNim').value = m.nimNip;
+            document.getElementById('editNama').value = m.nama;
+            document.getElementById('editJenis').value = m.jenis;
+            document.getElementById('editProdi').value = m.prodiUnit;
+            document.getElementById('editEmail').value = m.email;
+            document.getElementById('editTelp').value = m.noTelp;
+            document.getElementById('editAlamat').value = m.alamat;
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        // Handle Save Edit
+        function handleSaveEdit(e) {
+            e.preventDefault();
+            const nim = document.getElementById('editOriginalNim').value;
+            let members = getStoredMembers();
+
+            const index = members.findIndex(m => m.nimNip === nim);
+            if (index !== -1) {
+                members[index].nama = document.getElementById('editNama').value.trim();
+                members[index].jenis = document.getElementById('editJenis').value;
+                members[index].prodiUnit = document.getElementById('editProdi').value.trim();
+                members[index].email = document.getElementById('editEmail').value.trim();
+                members[index].noTelp = document.getElementById('editTelp').value.trim();
+                members[index].alamat = document.getElementById('editAlamat').value.trim();
+
+                saveMembersToStorage(members);
+                renderAnggotaTable();
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                modal.hide();
+
+                showToast('Data anggota berhasil diperbarui!', 'bg-success');
+            }
+        }
+
+        // Delete Member
+        function confirmDeleteMember(nim) {
+            if (confirm(`Apakah Anda yakin ingin menghapus data anggota dengan NIM/NIP ${nim}?`)) {
+                let members = getStoredMembers();
+                members = members.filter(m => m.nimNip !== nim);
+                saveMembersToStorage(members);
+                renderAnggotaTable();
+                showToast('Data anggota berhasil dihapus.', 'bg-info');
+            }
+        }
+
+        // Reset Data ke Dummy Awal
+        function confirmResetAllData() {
+            if (confirm('Apakah Anda yakin ingin mengembalikan seluruh data anggota ke sampel data awal?')) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                getStoredMembers();
+                updateStatistics();
+                renderAnggotaTable();
+                showToast('Data berhasil di-reset ke data awal sampel.', 'bg-secondary');
+            }
+        }
+
+        // Helper Toast Notification
+        function showToast(message, bgClass = 'bg-primary') {
+            const toastEl = document.getElementById('liveToast');
+            const toastBody = document.getElementById('toastMessage');
+            
+            toastEl.className = `toast align-items-center text-white border-0 ${bgClass}`;
+            toastBody.textContent = message;
+
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        // Initialization on Load
+        window.onload = function() {
+            updateStatistics();
+            renderAnggotaTable();
+        };
+    </script>
+</body>
+</html>
